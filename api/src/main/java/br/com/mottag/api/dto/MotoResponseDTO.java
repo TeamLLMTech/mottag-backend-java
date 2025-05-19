@@ -5,17 +5,20 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-public class MotoRequestDTO {
+public class MotoResponseDTO {
 
-    @NotBlank(message = "Campo \"modelo\" não pode ser vazio")
+    private Long idMoto;
     private String modelo;
-
-    @Pattern(regexp = "^([A-Z]{3}[0-9]{4})|([A-Z]{3}[0-9][A-Z][0-9]{2})$", message = "Campo \"placa\" deve seguir o formato \"AAA1234\" ou \"AAA1A34\"")
-    @NotBlank(message = "Campo \"placa\" não pode ser vazio")
     private String placa;
-
-    @NotNull(message = "Campo \"status\" é obrigatório")
     private StatusMoto status;
+
+    public Long getIdMoto() {
+        return idMoto;
+    }
+
+    public void setIdMoto(Long idMoto) {
+        this.idMoto = idMoto;
+    }
 
     public String getModelo() {
         return modelo;
