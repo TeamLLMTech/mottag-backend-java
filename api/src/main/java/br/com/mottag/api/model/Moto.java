@@ -13,6 +13,10 @@ public class Moto {
     private String placa;
     private StatusMoto status;
 
+    @ManyToOne
+    @JoinColumn(name = "id_patio")
+    private Patio patio;
+
     public Long getIdMoto() {
         return idMoto;
     }

@@ -1,9 +1,8 @@
 package br.com.mottag.api.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 public class Patio {
@@ -14,6 +13,9 @@ public class Patio {
     private String nome;
     private String layout;
     private String endereco;
+
+    @OneToMany(mappedBy = "patio")
+    private List<Moto> motos;
 
     public Long getIdPatio() {
         return idPatio;

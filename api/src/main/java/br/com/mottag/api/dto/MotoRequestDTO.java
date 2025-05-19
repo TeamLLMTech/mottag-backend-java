@@ -17,6 +17,9 @@ public class MotoRequestDTO {
     @NotNull(message = "Campo \"status\" é obrigatório")
     private StatusMoto status;
 
+    @NotNull(message = "Campo \"idPatio\" é obrigatório")
+    private Long idPatio;
+
     public String getModelo() {
         return modelo;
     }
@@ -39,5 +42,13 @@ public class MotoRequestDTO {
 
     public void setStatus(StatusMoto status) {
         this.status = status;
+    }
+
+    public Long getIdPatio() {
+        return idPatio;
+    }
+
+    public void setIdPatio(Long idPatio) {
+        this.idPatio = idPatio;
     }
 }

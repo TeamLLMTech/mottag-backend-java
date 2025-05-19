@@ -11,6 +11,7 @@ public class MotoResponseDTO {
     private String modelo;
     private String placa;
     private StatusMoto status;
+    private Long idPatio;
 
     public Long getIdMoto() {
         return idMoto;
@@ -42,5 +43,13 @@ public class MotoResponseDTO {
 
     public void setStatus(StatusMoto status) {
         this.status = status;
+    }
+
+    public Long getIdPatio() {
+        return idPatio;
+    }
+
+    public void setIdPatio(Long idPatio) {
+        this.idPatio = idPatio;
     }
 }
