@@ -8,7 +8,6 @@ public class PatioResponseDTO {
     private String nome;
     private String layout;
     private String endereco;
-    private List<MotoResponseDTO> motos;
 
     public Long getIdPatio() {
         return idPatio;
@@ -42,11 +41,4 @@ public class PatioResponseDTO {
         this.endereco = endereco;
     }
 
-    public List<MotoResponseDTO> getMotos() {
-        return motos;
-    }
-
-    public void setMotos(List<MotoResponseDTO> motos) {
-        this.motos = motos;
-    }
 }

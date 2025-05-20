@@ -24,4 +24,13 @@ public class MotoMapper {
 
         return moto;
     }
+
+    public static void updateEntityUsingDTO(Moto moto, MotoRequestDTO dto) {
+        if (dto == null || moto == null) return;
+
+        moto.setModelo(dto.getModelo());
+        moto.setPlaca(dto.getPlaca());
+        moto.setStatus(dto.getStatus());
+    }
+
 }
