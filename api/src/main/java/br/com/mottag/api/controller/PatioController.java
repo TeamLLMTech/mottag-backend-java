@@ -2,6 +2,8 @@ package br.com.mottag.api.controller;
 
 import br.com.mottag.api.dto.PatioRequestDTO;
 import br.com.mottag.api.dto.PatioResponseDTO;
+import br.com.mottag.api.dto.common.ApiResponseDTO;
+import br.com.mottag.api.dto.common.PaginationDTO;
 import br.com.mottag.api.service.PatioService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -11,6 +13,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/patios")
@@ -31,11 +35,13 @@ public class PatioController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<PatioResponseDTO>> findAllPatio(
+    public ResponseEntity<ApiResponseDTO<List<PatioResponseDTO>>> findAllPatio(
             @PageableDefault(size = 10) Pageable pageable
     ) {
-        return new ResponseEntity<Page<PatioResponseDTO>>(
-                this.patioService.findAll(pageable),
+        Page<PatioResponseDTO> patios = this.patioService.findAll(pageable);
+        PaginationDTO pagination = PaginationDTO.fromPage(patios);
+        return new ResponseEntity<>(
+                new ApiResponseDTO<>(patios.getContent(), pagination),
                 HttpStatus.OK
         );
     }

@@ -2,6 +2,8 @@ package br.com.mottag.api.controller;
 
 import br.com.mottag.api.dto.MotoRequestDTO;
 import br.com.mottag.api.dto.MotoResponseDTO;
+import br.com.mottag.api.dto.common.ApiResponseDTO;
+import br.com.mottag.api.dto.common.PaginationDTO;
 import br.com.mottag.api.service.MotoService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -11,6 +13,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/motos")
@@ -31,11 +35,13 @@ public class MotoController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<MotoResponseDTO>> findAllMoto(
+    public ResponseEntity<ApiResponseDTO<List<MotoResponseDTO>>> findAllMoto(
             @PageableDefault(size = 10) Pageable pageable
     ) {
-        return new ResponseEntity<Page<MotoResponseDTO>>(
-                this.motoService.findAll(pageable),
+        Page<MotoResponseDTO> motos = this.motoService.findAll(pageable);
+        PaginationDTO pagination = PaginationDTO.fromPage(motos);
+        return new ResponseEntity<>(
+                new ApiResponseDTO<>(motos.getContent(), pagination),
                 HttpStatus.OK
         );
     }
