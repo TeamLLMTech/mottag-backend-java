@@ -5,6 +5,7 @@ import br.com.mottag.api.dto.MotoResponseDTO;
 import br.com.mottag.api.mapper.MotoMapper;
 import br.com.mottag.api.model.Moto;
 import br.com.mottag.api.model.Patio;
+import br.com.mottag.api.model.StatusMoto;
 import br.com.mottag.api.repository.MotoRepository;
 import br.com.mottag.api.repository.PatioRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -33,8 +34,14 @@ public class MotoService {
         return MotoMapper.toDTO(saved);
     }
 
-    public Page<MotoResponseDTO> findAll(Pageable pageable) {
-        return this.motoRepository.findAll(pageable).map(MotoMapper::toDTO);
+    public Page<MotoResponseDTO> findAll(
+            Pageable pageable,
+            Long idPatio,
+            StatusMoto status
+    ) {
+        return this.motoRepository
+                .findAllWithFilters(idPatio, status, pageable)
+                .map(MotoMapper::toDTO);
     }
 
     public MotoResponseDTO findById(Long id) {

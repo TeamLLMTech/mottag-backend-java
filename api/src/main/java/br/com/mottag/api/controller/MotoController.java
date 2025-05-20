@@ -4,6 +4,7 @@ import br.com.mottag.api.dto.MotoRequestDTO;
 import br.com.mottag.api.dto.MotoResponseDTO;
 import br.com.mottag.api.dto.common.ApiResponseDTO;
 import br.com.mottag.api.dto.common.PaginationDTO;
+import br.com.mottag.api.model.StatusMoto;
 import br.com.mottag.api.service.MotoService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -36,9 +37,11 @@ public class MotoController {
 
     @GetMapping
     public ResponseEntity<ApiResponseDTO<List<MotoResponseDTO>>> findAllMoto(
-            @PageableDefault(size = 10) Pageable pageable
+            @PageableDefault(size = 10) Pageable pageable,
+            @RequestParam(required = false) Long idPatio,
+            @RequestParam(required = false) StatusMoto status
     ) {
-        Page<MotoResponseDTO> motos = this.motoService.findAll(pageable);
+        Page<MotoResponseDTO> motos = this.motoService.findAll(pageable, idPatio, status);
         PaginationDTO pagination = PaginationDTO.fromPage(motos);
         return new ResponseEntity<>(
                 new ApiResponseDTO<>(motos.getContent(), pagination),
