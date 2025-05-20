@@ -48,4 +48,12 @@ public class Moto {
     public void setStatus(StatusMoto status) {
         this.status = status;
     }
+
+    public Patio getPatio() {
+        return patio;
+    }
+
+    public void setPatio(Patio patio) {
+        this.patio = patio;
+    }
 }

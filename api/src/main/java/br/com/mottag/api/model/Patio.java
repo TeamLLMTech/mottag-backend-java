@@ -48,4 +48,12 @@ public class Patio {
     public void setEndereco(String endereco) {
         this.endereco = endereco;
     }
+
+    public List<Moto> getMotos() {
+        return motos;
+    }
+
+    public void setMotos(List<Moto> motos) {
+        this.motos = motos;
+    }
 }

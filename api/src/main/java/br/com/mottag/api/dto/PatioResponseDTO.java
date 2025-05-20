@@ -1,6 +1,6 @@
 package br.com.mottag.api.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 
 public class PatioResponseDTO {
 
@@ -8,6 +8,7 @@ public class PatioResponseDTO {
     private String nome;
     private String layout;
     private String endereco;
+    private List<MotoResponseDTO> motos;
 
     public Long getIdPatio() {
         return idPatio;
@@ -39,5 +40,13 @@ public class PatioResponseDTO {
 
     public void setEndereco(String endereco) {
         this.endereco = endereco;
+    }
+
+    public List<MotoResponseDTO> getMotos() {
+        return motos;
+    }
+
+    public void setMotos(List<MotoResponseDTO> motos) {
+        this.motos = motos;
     }
 }
