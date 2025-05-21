@@ -12,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MotoService {
@@ -23,6 +24,9 @@ public class MotoService {
         this.patioRepository = patioRepository;
     }
 
+    @Transactional
+    // @CachePut(value = "motos")
+    // @CacheEvict(value = "motos", allEntries = true)
     public MotoResponseDTO save(MotoRequestDTO dto) {
         Patio patio = this.patioRepository.findById(dto.getIdPatio())
                 .orElseThrow(() -> new EntityNotFoundException("Patio nao encontrado com o id: " + dto.getIdPatio()));
@@ -34,6 +38,7 @@ public class MotoService {
         return MotoMapper.toDTO(saved);
     }
 
+    // @Cacheable(value = "motos")
     public Page<MotoResponseDTO> findAll(
             Pageable pageable,
             Long idPatio,
@@ -44,6 +49,7 @@ public class MotoService {
                 .map(MotoMapper::toDTO);
     }
 
+    // @Cacheable(value = "motos", key = "#id")
     public MotoResponseDTO findById(Long id) {
         MotoResponseDTO moto = this.motoRepository.findById(id)
                 .map(MotoMapper::toDTO)
@@ -51,6 +57,8 @@ public class MotoService {
         return moto;
     }
 
+    @Transactional
+    // CachePut(value = "motos", key = "#result.idMoto")
     public MotoResponseDTO update(Long id, MotoRequestDTO dto) {
         Moto moto = this.motoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Moto nao encontrada com o id: " + id));
@@ -62,11 +70,20 @@ public class MotoService {
         return MotoMapper.toDTO(updated);
     }
 
+    @Transactional
+    // @CacheEvict(value = "motos", key = "#id")
     public void delete(Long id) {
         if (!this.motoRepository.existsById(id)) {
             throw new EntityNotFoundException("Moto nao encontrada com o id: " + id);
         }
         this.motoRepository.deleteById(id);
     }
+
+    // Cache methods
+    // @CacheEvict(value = "motos", key = "'all'")
+    // public void cleanCacheOfAllMotos() {}
+
+    // @CacheEvict(value = "motos", allEntries = true)
+    // public void cleanAllMotosFromCache() {}
 
 }
