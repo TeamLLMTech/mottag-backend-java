@@ -1,7 +1,10 @@
 package br.com.mottag.api.dto.common;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL) // Para omitir o Details quando for null
 public class ApiErrorDTO {
     private String error;
     private List<String> details;

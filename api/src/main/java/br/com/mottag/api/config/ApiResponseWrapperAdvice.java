@@ -2,6 +2,7 @@ package br.com.mottag.api.config;
 
 import br.com.mottag.api.dto.common.ApiErrorDTO;
 import br.com.mottag.api.dto.common.ApiResponseDTO;
+import br.com.mottag.api.dto.common.ApiResponseWithPaginationDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ public class ApiResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
         return !returnType.getParameterType().equals(ApiResponseDTO.class)
+                && !returnType.getParameterType().equals(ApiResponseWithPaginationDTO.class)
                 && !returnType.getParameterType().equals(ApiErrorDTO.class);
     }
 
@@ -31,11 +33,20 @@ public class ApiResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
                                   ServerHttpRequest request,
                                   ServerHttpResponse response) {
 
+        if (isSwaggerRequest(request)) {
+            return body;
+        }
+
         if (body instanceof ApiResponseDTO || body instanceof ApiErrorDTO) {
             return body;
         }
 
         return new ApiResponseDTO<>(body);
+    }
+
+    private boolean isSwaggerRequest(ServerHttpRequest request) {
+        String path = request.getURI().getPath();
+        return path.contains("/swagger") || path.contains("/v3/api-docs");
     }
 
 }
