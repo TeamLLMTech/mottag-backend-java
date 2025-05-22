@@ -65,7 +65,11 @@ public class MotoService {
         Moto moto = this.motoRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Moto nao encontrada com o id: " + id));
 
+        Patio patio = this.patioRepository.findById(dto.getIdPatio())
+                .orElseThrow(() -> new EntityNotFoundException("Patio nao encontrado com o id: " + dto.getIdPatio()));
+
         MotoMapper.updateEntityUsingDTO(moto, dto);
+        moto.setPatio(patio);
 
         Moto updated = this.motoRepository.save(moto);
 
