@@ -36,13 +36,20 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ApiErrorDTO> handleNotFoundException(NotFoundException ex) {
+        ApiErrorDTO error = new ApiErrorDTO(ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiErrorDTO> handleEntityNotFoundException(EntityNotFoundException ex, HttpServletRequest request) {
         ApiErrorDTO error = new ApiErrorDTO(ex.getMessage());
-        if (request.getMethod().equals("GET") || request.getMethod().equals("DELETE")) {
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        if (request.getMethod().equals("POST")) {
+            return new ResponseEntity<>(error, HttpStatus.UNPROCESSABLE_ENTITY);
         } else {
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+            // TODO: log strange case
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }
     }
 

@@ -2,6 +2,7 @@ package br.com.mottag.api.service;
 
 import br.com.mottag.api.dto.MotoRequestDTO;
 import br.com.mottag.api.dto.MotoResponseDTO;
+import br.com.mottag.api.exception.NotFoundException;
 import br.com.mottag.api.mapper.MotoMapper;
 import br.com.mottag.api.model.Moto;
 import br.com.mottag.api.model.Patio;
@@ -53,15 +54,16 @@ public class MotoService {
     public MotoResponseDTO findById(Long id) {
         MotoResponseDTO moto = this.motoRepository.findById(id)
                 .map(MotoMapper::toDTO)
-                .orElseThrow(() -> new EntityNotFoundException("Moto nao encontrada com o id: " + id));
+                .orElseThrow(() -> new NotFoundException("Moto nao encontrada com o id: " + id));
         return moto;
     }
 
     @Transactional
     // CachePut(value = "motos", key = "#result.idMoto")
     public MotoResponseDTO update(Long id, MotoRequestDTO dto) {
+        // TODO: update patio ref
         Moto moto = this.motoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Moto nao encontrada com o id: " + id));
+                .orElseThrow(() -> new NotFoundException("Moto nao encontrada com o id: " + id));
 
         MotoMapper.updateEntityUsingDTO(moto, dto);
 
@@ -74,7 +76,7 @@ public class MotoService {
     // @CacheEvict(value = "motos", key = "#id")
     public void delete(Long id) {
         if (!this.motoRepository.existsById(id)) {
-            throw new EntityNotFoundException("Moto nao encontrada com o id: " + id);
+            throw new NotFoundException("Moto nao encontrada com o id: " + id);
         }
         this.motoRepository.deleteById(id);
     }

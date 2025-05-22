@@ -2,6 +2,7 @@ package br.com.mottag.api.service;
 
 import br.com.mottag.api.dto.PatioRequestDTO;
 import br.com.mottag.api.dto.PatioResponseDTO;
+import br.com.mottag.api.exception.NotFoundException;
 import br.com.mottag.api.mapper.PatioMapper;
 import br.com.mottag.api.model.Patio;
 import br.com.mottag.api.repository.PatioRepository;
@@ -39,7 +40,7 @@ public class PatioService {
     public PatioResponseDTO findById(Long id) {
         PatioResponseDTO patio = this.patioRepository.findById(id)
                 .map(PatioMapper::toDTO)
-                .orElseThrow(() -> new EntityNotFoundException("Patio nao encontrado com o id: " + id));
+                .orElseThrow(() -> new NotFoundException("Patio nao encontrado com o id: " + id));
         return patio;
     }
 
@@ -47,7 +48,7 @@ public class PatioService {
     // CachePut(value = "patios", key = "#result.idPatio")
     public PatioResponseDTO update(Long id, PatioRequestDTO dto) {
         Patio patio = this.patioRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Patio nao encontrado com o id: " + id));
+                .orElseThrow(() -> new NotFoundException("Patio nao encontrado com o id: " + id));
 
         PatioMapper.updateEntityUsingDTO(patio, dto);
 
@@ -60,7 +61,7 @@ public class PatioService {
     // @CacheEvict(value = "patios", key = "#id")
     public void delete(Long id) {
         if (!this.patioRepository.existsById(id)) {
-            throw new EntityNotFoundException("Patio nao encontrado com o id: " + id);
+            throw new NotFoundException("Patio nao encontrado com o id: " + id);
         }
         this.patioRepository.deleteById(id);
         // cleanCacheOfAllPatios();
