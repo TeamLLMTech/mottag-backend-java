@@ -3,6 +3,7 @@ package br.com.mottag.api.exception;
 import br.com.mottag.api.dto.common.ApiErrorDTO;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,8 +68,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
-    public ResponseEntity<ApiErrorDTO> handleSQLIntegrityConstraintViolationException(SQLIntegrityConstraintViolationException ex) {
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiErrorDTO> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
         ApiErrorDTO error = new ApiErrorDTO("Não foi possível concluir a operação. Os dados informados violam uma restrição de integridade no banco de dados.");
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
