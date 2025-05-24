@@ -28,11 +28,13 @@ public class PatioService {
     @CacheEvict(value = "patios", allEntries = true)
     public PatioResponseDTO save(PatioRequestDTO dto) {
         Patio saved = this.patioRepository.save(PatioMapper.fromDTO(dto));
+
         cleanCacheOfAllPatios();
+
         return PatioMapper.toDTO(saved);
     }
 
-    @Cacheable(value = "patios", key = "'all'")
+    // @Cacheable(value = "patios", key = "'all'")
     public Page<PatioResponseDTO> findAll(Pageable pageable) {
         return this.patioRepository.findAll(pageable).map(PatioMapper::toDTO);
     }
@@ -54,17 +56,20 @@ public class PatioService {
         PatioMapper.updateEntityUsingDTO(patio, dto);
 
         Patio updated = this.patioRepository.save(patio);
+
         cleanCacheOfAllPatios();
+
         return PatioMapper.toDTO(updated);
     }
 
     @Transactional
     @CacheEvict(value = "patios", key = "#idPatio")
-    public void delete(Long id) {
-        if (!this.patioRepository.existsById(id)) {
-            throw new NotFoundException("Patio nao encontrado com o id: " + id);
+    public void delete(Long idPatio) {
+        if (!this.patioRepository.existsById(idPatio)) {
+            throw new NotFoundException("Patio nao encontrado com o id: " + idPatio);
         }
-        this.patioRepository.deleteById(id);
+        this.patioRepository.deleteById(idPatio);
+
         cleanAllPatiosFromCache();
     }
 

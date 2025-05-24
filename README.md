@@ -74,7 +74,7 @@ Para facilitar o teste da API, um arquivo de coleção do Postman está disponí
 - [x] Validation
 - [x] Global Exception Handler
 - [x] H2 Database
-- [ ] Cache
+- [x] Cache
 - [ ] Conexão com banco de dados externo
 - [ ] Completar model
 - [ ] Autenticação e autorização
