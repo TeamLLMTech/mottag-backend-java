@@ -77,6 +77,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorDTO> handleAllOtherExceptions(Exception ex) {
         ApiErrorDTO error = new ApiErrorDTO("Erro no servidor");
+        ex.printStackTrace();
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

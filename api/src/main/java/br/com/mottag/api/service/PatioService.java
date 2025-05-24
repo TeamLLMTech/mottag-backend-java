@@ -24,28 +24,29 @@ public class PatioService {
     }
 
     @Transactional
-    // @CachePut(value = "patios")
-    // @CacheEvict(value = "patios", allEntries = true)
+    @CachePut(value = "patios", key = "#result.idPatio")
+    @CacheEvict(value = "patios", allEntries = true)
     public PatioResponseDTO save(PatioRequestDTO dto) {
         Patio saved = this.patioRepository.save(PatioMapper.fromDTO(dto));
+        cleanCacheOfAllPatios();
         return PatioMapper.toDTO(saved);
     }
 
-    // @Cacheable(value = "patios")
+    @Cacheable(value = "patios", key = "'all'")
     public Page<PatioResponseDTO> findAll(Pageable pageable) {
         return this.patioRepository.findAll(pageable).map(PatioMapper::toDTO);
     }
 
-    // @Cacheable(value = "patios", key = "#id")
-    public PatioResponseDTO findById(Long id) {
-        PatioResponseDTO patio = this.patioRepository.findById(id)
+    @Cacheable(value = "patios", key = "#idPatio")
+    public PatioResponseDTO findById(Long idPatio) {
+        PatioResponseDTO patio = this.patioRepository.findById(idPatio)
                 .map(PatioMapper::toDTO)
-                .orElseThrow(() -> new NotFoundException("Patio nao encontrado com o id: " + id));
+                .orElseThrow(() -> new NotFoundException("Patio nao encontrado com o id: " + idPatio));
         return patio;
     }
 
     @Transactional
-    // CachePut(value = "patios", key = "#result.idPatio")
+    @CachePut(value = "patios", key = "#result.idPatio")
     public PatioResponseDTO update(Long id, PatioRequestDTO dto) {
         Patio patio = this.patioRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Patio nao encontrado com o id: " + id));
@@ -53,25 +54,25 @@ public class PatioService {
         PatioMapper.updateEntityUsingDTO(patio, dto);
 
         Patio updated = this.patioRepository.save(patio);
-
+        cleanCacheOfAllPatios();
         return PatioMapper.toDTO(updated);
     }
 
     @Transactional
-    // @CacheEvict(value = "patios", key = "#id")
+    @CacheEvict(value = "patios", key = "#idPatio")
     public void delete(Long id) {
         if (!this.patioRepository.existsById(id)) {
             throw new NotFoundException("Patio nao encontrado com o id: " + id);
         }
         this.patioRepository.deleteById(id);
-        // cleanCacheOfAllPatios();
+        cleanAllPatiosFromCache();
     }
 
     // Cache methods
-    // @CacheEvict(value = "patios", key = "'all'")
-    // public void cleanCacheOfAllPatios() {}
+    @CacheEvict(value = "patios", key = "'all'")
+    public void cleanCacheOfAllPatios() {}
 
-    // @CacheEvict(value = "patios", allEntries = true)
-    // public void cleanAllPatiosFromCache() {}
+    @CacheEvict(value = "patios", allEntries = true)
+    public void cleanAllPatiosFromCache() {}
 
 }
