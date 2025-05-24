@@ -7,6 +7,8 @@ Esta API gerencia motos e pátios, permitindo operações de cadastro, consulta,
 
 ## Sobre nós
 Desenvolvido para o Challenge FIAP 2025 por:
+
+Grupo LLM
 - Gabriel Marques de Lima Sousa - RM 554889
 - Leonardo Matheus Teixeira - RM 556629
 - Leonardo Menezes Parpinelli Ribas - RM 557908
