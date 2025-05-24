@@ -180,7 +180,7 @@
 								},
 								{
 									"key": "status",
-									"value": "NOVA",
+									"value": "PRONTA",
 									"description": "Status da moto",
 									"disabled": true
 								},
@@ -264,7 +264,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"idPatio\": 2,\r\n    \"modelo\": \"Mottu Sport\",\r\n    \"placa\": \"AAA4321\",\r\n    \"status\": \"NOVA\"\r\n}",
+							"raw": "{\r\n    \"idPatio\": 1,\r\n    \"modelo\": \"Mottu Sport\",\r\n    \"placa\": \"AAA4321\",\r\n    \"status\": \"NOVA\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
