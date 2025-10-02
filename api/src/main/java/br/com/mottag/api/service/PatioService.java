@@ -20,6 +20,12 @@ public class PatioService {
         this.patioRepository = patioRepository;
     }
 
+    public java.util.List<PatioResponseDTO> findAllNoPage() {
+        return this.patioRepository.findAll().stream()
+            .map(PatioMapper::toDTO)
+            .toList();
+    }
+
     @Transactional
     public PatioResponseDTO save(PatioRequestDTO dto) {
         Patio saved = this.patioRepository.save(PatioMapper.fromDTO(dto));
