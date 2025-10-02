@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -74,6 +75,7 @@ public class MotoController {
                     )
             )
     })
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
     public ResponseEntity<MotoResponseDTO> createMoto(@Valid @RequestBody MotoRequestDTO dto) {
         return new ResponseEntity<MotoResponseDTO>(
@@ -115,6 +117,7 @@ public class MotoController {
                     )
             )
     })
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping
     public ResponseEntity<ApiResponseDTO<List<MotoResponseDTO>>> findAllMoto(
             @Parameter(hidden = true) @PageableDefault(size = 10) Pageable pageable,
@@ -162,6 +165,7 @@ public class MotoController {
                     )
             )
     })
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{id}")
     public ResponseEntity<MotoResponseDTO> findByIdMoto(
             @Parameter(name = "id", description = "ID da moto", example = "1")
@@ -216,6 +220,7 @@ public class MotoController {
                     )
             )
     })
+    @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/{id}")
     public ResponseEntity<MotoResponseDTO> updateMoto(
             @Parameter(name = "id", description = "ID da moto", example = "1")
@@ -255,6 +260,7 @@ public class MotoController {
                     )
             )
     })
+    @SecurityRequirement(name = "Bearer Authentication")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMoto(
             @Parameter(name = "id", description = "ID da moto", example = "1")

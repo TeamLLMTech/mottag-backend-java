@@ -8,6 +8,7 @@ import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -72,6 +73,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorDTO> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
         ApiErrorDTO error = new ApiErrorDTO("Não foi possível concluir a operação. Os dados informados violam uma restrição de integridade no banco de dados.");
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiErrorDTO> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
+        ApiErrorDTO error = new ApiErrorDTO("Método não permitido.");
+        return new ResponseEntity<>(error, HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ApiErrorDTO> handleForbiddenException(ForbiddenException ex) {
+        ApiErrorDTO error = new ApiErrorDTO(ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiErrorDTO> handleUnauthorizedException(UnauthorizedException ex) {
+        ApiErrorDTO error = new ApiErrorDTO(ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
     // Catch all other exceptions

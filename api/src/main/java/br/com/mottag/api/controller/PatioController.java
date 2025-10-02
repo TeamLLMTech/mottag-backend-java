@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -61,6 +62,7 @@ public class PatioController {
                     )
             )
     })
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
     public ResponseEntity<PatioResponseDTO> createPatio(@Valid @RequestBody PatioRequestDTO dto) {
         return new ResponseEntity<PatioResponseDTO>(
@@ -100,6 +102,7 @@ public class PatioController {
                     )
             )
     })
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping
     public ResponseEntity<ApiResponseDTO<List<PatioResponseDTO>>> findAllPatio(
             @Parameter(hidden = true) @PageableDefault(size = 10) Pageable pageable
@@ -145,6 +148,7 @@ public class PatioController {
                     )
             )
     })
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{id}")
     public ResponseEntity<PatioResponseDTO> findByIdPatio(
             @Parameter(name = "id", description = "ID do pátio", example = "1")
@@ -189,6 +193,7 @@ public class PatioController {
                     )
             )
     })
+    @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/{id}")
     public ResponseEntity<PatioResponseDTO> updatePatio(
             @Parameter(name = "id", description = "ID do pátio", example = "1")
@@ -228,6 +233,7 @@ public class PatioController {
                     )
             )
     })
+    @SecurityRequirement(name = "Bearer Authentication")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePatio(
             @Parameter(name = "id", description = "ID do pátio", example = "1")
