@@ -80,4 +80,10 @@ public class MotoService {
         this.motoRepository.deleteById(idMoto);
     }
 
+        public java.util.List<MotoResponseDTO> findAllNoPage() {
+            return this.motoRepository.findAll().stream()
+                .map(MotoMapper::toDTO)
+                .toList();
+        }
+
 }
