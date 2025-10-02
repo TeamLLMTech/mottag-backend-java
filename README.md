@@ -63,9 +63,6 @@ Acesse a documentação interativa em:
 http://localhost:8080/swagger-ui.html
 ```
 
-### Postman
-Para facilitar o teste da API, um arquivo de coleção do Postman está disponível na pasta `postman`. Importe o arquivo `collection.json` no Postman para acessar os endpoints pré-configurados.
-
 ## Estrutura do Projeto
 - `controller/`: Endpoints REST
 - `service/`: Regras de negócio
@@ -74,6 +71,7 @@ Para facilitar o teste da API, um arquivo de coleção do Postman está disponí
 - `dto/`: Objetos de transferência de dados
 - `exception/`: Tratamento de exceções
 - `config/`: Configurações gerais
+- `security/`: Configurações de segurança
 
 ## Roadmap
 - [x] Versão inicial da API
