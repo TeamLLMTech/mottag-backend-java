@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import br.com.mottag.api.model.Usuario;
 import br.com.mottag.api.repository.UsuarioRepository;
 import br.com.mottag.api.service.TokenService;
 
@@ -34,6 +35,21 @@ public class SecurityFilter extends OncePerRequestFilter {
             UserDetails userDetails = this.usuarioRepository.findByEmail(email);
             var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // Access control based on perfil
+            if (userDetails instanceof Usuario usuario) {
+                String perfil = usuario.getPerfil();
+                String path = request.getRequestURI();
+                if ("OPERADOR".equals(perfil)) {
+                    // Only allow /motos routes
+                    if (!path.startsWith("/motos")) {
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        response.getWriter().write("Acesso negado: OPERADOR apenas pode acessar rotas de motos.");
+                        return;
+                    }
+                }
+                // GESTOR can access all routes (no restriction)
+            }
         }
         filterChain.doFilter(request, response);
     }
