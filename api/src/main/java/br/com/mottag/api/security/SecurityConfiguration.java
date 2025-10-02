@@ -32,6 +32,14 @@ public class SecurityConfiguration {
             "/configuration/**"
     };
 
+    private static final String[] PUBLIC_PAGES = {
+        "/patios-page/**",
+        "/motos-page/**",
+        "/webjars/**",
+        "/css/**",
+        "/js/**"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity)
             throws Exception {
@@ -42,6 +50,7 @@ public class SecurityConfiguration {
                 )
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(SWAGGER_AUTH_WHITELIST).permitAll()
+                        .requestMatchers(PUBLIC_PAGES).permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
                         .anyRequest().authenticated()
