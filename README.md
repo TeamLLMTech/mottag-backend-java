@@ -5,6 +5,10 @@ API desenvolvida em Java 21 com Spring Boot para o projeto Mottag da empresa Mot
 ## Descrição
 Esta API gerencia motos e pátios, permitindo operações de cadastro, consulta, atualização e remoção (CRUD) de ambos os recursos. Utiliza Spring Boot, Spring Data JPA, validação, cache e documentação automática com OpenAPI/Swagger.
 
+## Vídeo de Apresentação
+
+[Vídeo no YouTube](https://youtu.be/WDUmfSJpdx8)
+
 ## Sobre nós
 Desenvolvido para o Challenge FIAP 2025 por:
 
@@ -29,6 +33,7 @@ Grupo LLM
 - H2 Database
 - OpenAPI (Swagger)
 - JUnit 5
+- Thymeleaf
 
 ## Como executar
 
@@ -77,9 +82,9 @@ Para facilitar o teste da API, um arquivo de coleção do Postman está disponí
 - [x] Global Exception Handler
 - [x] H2 Database
 - [x] Cache
-- [ ] Conexão com banco de dados externo
-- [ ] Completar model
-- [ ] Autenticação e autorização
+- [x] Conexão com banco de dados externo
+- [x] Thymeleaf
+- [X] Autenticação e autorização
 - [ ] Conexão com IOT
 - [ ] Integração com serviços externos
 - [ ] Integração com IA
