@@ -32,6 +32,10 @@ dependencies {
 	implementation 'com.oracle.database.jdbc:ojdbc11'
 	implementation 'com.auth0:java-jwt:4.5.0'
 	implementation 'org.webjars:bootstrap:5.3.3'
+
+	// MQTT Support
+	implementation 'org.springframework.integration:spring-integration-mqtt:6.4.0'
+	implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
 }
 
 tasks.named('test') {
