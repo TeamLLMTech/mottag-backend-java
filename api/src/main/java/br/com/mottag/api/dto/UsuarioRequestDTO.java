@@ -24,11 +24,6 @@ public class UsuarioRequestDTO {
     @NotBlank(message = "Campo \"perfil\" é obrigatório")
     private String perfil;
 
-    @NotNull(message = "Campo \"ativo\" é obrigatório")
-    @Min(value = 0, message = "O campo \"ativo\" deve ser 0 (inativo) ou 1 (ativo)")
-    @Max(value = 1, message = "O campo \"ativo\" deve ser 0 (inativo) ou 1 (ativo)")
-    private Integer ativo;
-
     @NotNull(message = "Campo \"dataCadastro\" é obrigatório")
     private Date dataCadastro;
 
@@ -40,8 +35,6 @@ public class UsuarioRequestDTO {
     public void setSenha(String senha) { this.senha = senha; }
     public String getPerfil() { return perfil; }
     public void setPerfil(String perfil) { this.perfil = perfil; }
-    public Integer getAtivo() { return ativo; }
-    public void setAtivo(Integer ativo) { this.ativo = ativo; }
     public Date getDataCadastro() { return dataCadastro; }
     public void setDataCadastro(Date dataCadastro) { this.dataCadastro = dataCadastro; }
 }

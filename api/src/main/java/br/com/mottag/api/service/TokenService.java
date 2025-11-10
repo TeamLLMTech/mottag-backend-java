@@ -1,6 +1,6 @@
 package br.com.mottag.api.service;
 
-import br.com.mottag.api.exception.ForbiddenException;
+import br.com.mottag.api.exception.UnauthorizedException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
@@ -48,7 +48,7 @@ public class TokenService {
                     .verify(token)
                     .getSubject();
         } catch (Exception exception) {
-            throw new ForbiddenException("Acesso negado", exception);
+            throw new UnauthorizedException("Acesso negado", exception);
         }
     }
 }

@@ -7,7 +7,6 @@ public class UsuarioResponseDTO {
     private String nome;
     private String email;
     private String perfil;
-    private Integer ativo;
     private Date dataCadastro;
 
     public Long getIdUsuario() { return idUsuario; }
@@ -18,8 +17,6 @@ public class UsuarioResponseDTO {
     public void setEmail(String email) { this.email = email; }
     public String getPerfil() { return perfil; }
     public void setPerfil(String perfil) { this.perfil = perfil; }
-    public Integer getAtivo() { return ativo; }
-    public void setAtivo(Integer ativo) { this.ativo = ativo; }
     public Date getDataCadastro() { return dataCadastro; }
     public void setDataCadastro(Date dataCadastro) { this.dataCadastro = dataCadastro; }
 }
