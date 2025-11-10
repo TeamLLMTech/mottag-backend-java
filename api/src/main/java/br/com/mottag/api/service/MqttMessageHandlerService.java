@@ -10,12 +10,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.MessagingException;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.mottag.api.dto.AntennaInfoDto;
+import br.com.mottag.api.dto.DevicePositionUpdateDto;
 import br.com.mottag.api.dto.DeviceReadingDto;
 import br.com.mottag.api.dto.MqttMessagePayloadDto;
 import br.com.mottag.api.dto.MqttMessagePayloadEventDto;
@@ -32,18 +34,23 @@ public class MqttMessageHandlerService implements MessageHandler {
     private final ObjectMapper objectMapper;
     private final AntennaPositioningService positioningService;
     private final DeviceReadingBuffer readingBuffer;
+    private final SimpMessagingTemplate messagingTemplate;
 
     // Map of antenna IDs to their physical positions
     // TODO: This should be moved to a configuration file or database
     private final Map<String, PositionDto> antennaPositions;
 
     public MqttMessageHandlerService(AntennaPositioningService positioningService,
-                                    DeviceReadingBuffer readingBuffer) {
+                                    DeviceReadingBuffer readingBuffer,
+                                    SimpMessagingTemplate messagingTemplate) {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.findAndRegisterModules(); // Register modules for Java 8 date/time support
         this.positioningService = positioningService;
         this.readingBuffer = readingBuffer;
+        this.messagingTemplate = messagingTemplate;
         this.antennaPositions = initializeAntennaPositions();
+
+        logger.info("MqttMessageHandlerService initialized with WebSocket support");
     }
 
     /**
@@ -183,14 +190,40 @@ public class MqttMessageHandlerService implements MessageHandler {
                 logger.info("Estimated position for device {}: ({}, {})",
                            deviceAddress, estimatedPosition.getX(), estimatedPosition.getY());
 
+                // Send position update via WebSocket to all connected clients
+                broadcastPositionUpdate(deviceAddress, estimatedPosition, aggregatedReadings.size());
+
                 // TODO: Store the calculated position in database
-                // TODO: Send position update via WebSocket/SSE to connected clients
                 // TODO: Trigger any business logic based on device position
             }
         } else {
             List<AntennaInfoDto> currentReadings = readingBuffer.getAggregatedReadings(deviceAddress);
             logger.debug("Device {} has {} readings, need at least {} for position calculation",
                         deviceAddress, currentReadings.size(), readingBuffer.getMinReadings());
+        }
+    }
+
+    /**
+     * Broadcasts device position update to all WebSocket subscribers.
+     *
+     * @param deviceAddress the MAC address of the device
+     * @param position the calculated position
+     * @param antennaCount number of antennas used in calculation
+     */
+    private void broadcastPositionUpdate(String deviceAddress, PositionDto position, int antennaCount) {
+        DevicePositionUpdateDto update = new DevicePositionUpdateDto(
+                deviceAddress,
+                position.getX(),
+                position.getY(),
+                antennaCount
+        );
+
+        try {
+            messagingTemplate.convertAndSend("/topic/device-positions", update);
+            logger.info("✓ Broadcast position update for device {} to WebSocket: ({}, {})",
+                        deviceAddress, position.getX(), position.getY());
+        } catch (Exception e) {
+            logger.error("Failed to broadcast position update: {}", e.getMessage(), e);
         }
     }
 

@@ -35,6 +35,9 @@ public class SecurityConfiguration {
     private static final String[] PUBLIC_PAGES = {
         "/patios-page/**",
         "/motos-page/**",
+        "/positioning/**",
+        "/ws/**",  // WebSocket endpoint
+        "/api/test/**",  // Test endpoints
         "/webjars/**",
         "/css/**",
         "/js/**"
@@ -44,7 +47,10 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity)
             throws Exception {
         return httpSecurity
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/ws/**")  // Disable CSRF for WebSocket
+                        .disable()
+                )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Device Positioning - Real-time Tracking</title>
+    <link th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}" rel="stylesheet" />
+    <script th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/webjars/sockjs-client/1.5.1/sockjs.min.js}"></script>
+    <script th:src="@{/webjars/stomp-websocket/2.3.4/stomp.min.js}"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2eafc 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .grid-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .positioning-grid {
+            width: 100%;
+            max-width: 800px;
+            height: 600px;
+            border: 2px solid #dee2e6;
+            background:
+                linear-gradient(to right, #e9ecef 1px, transparent 1px),
+                linear-gradient(to bottom, #e9ecef 1px, transparent 1px);
+            background-size: 50px 50px;
+            position: relative;
+            margin: 20px auto;
+            border-radius: 10px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+        }
+
+        .device-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #198754 0%, #0d4b2b 100%);
+            border: 3px solid #fff;
+            box-shadow: 0 0 10px rgba(25, 135, 84, 0.6), 0 0 20px rgba(25, 135, 84, 0.3);
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            transition: all 0.5s ease;
+            z-index: 10;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(25, 135, 84, 0.6), 0 0 20px rgba(25, 135, 84, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 15px rgba(25, 135, 84, 0.8), 0 0 30px rgba(25, 135, 84, 0.5);
+            }
+        }
+
+        .device-marker:hover {
+            transform: translate(-50%, -50%) scale(1.3);
+            z-index: 20;
+        }
+
+        .device-label {
+            position: absolute;
+            font-size: 10px;
+            color: #495057;
+            background: rgba(255,255,255,0.9);
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+            pointer-events: none;
+            transform: translate(-50%, -30px);
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .antenna-marker {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            border: 2px solid #fff;
+            box-shadow: 0 0 10px rgba(13, 110, 253, 0.4);
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            z-index: 5;
+        }
+
+        .connection-status {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .connection-status.connected {
+            background: #198754;
+            box-shadow: 0 0 10px rgba(25, 135, 84, 0.5);
+            animation: blink 2s infinite;
+        }
+
+        .connection-status.disconnected {
+            background: #dc3545;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .device-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .device-item {
+            border-left: 4px solid #198754;
+            transition: all 0.3s ease;
+        }
+
+        .device-item:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #198754 0%, #0d4b2b 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(25, 135, 84, 0.3);
+        }
+
+        .axis-label {
+            position: absolute;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        .axis-label.x-axis {
+            bottom: -25px;
+            right: 10px;
+        }
+
+        .axis-label.y-axis {
+            top: 10px;
+            left: -35px;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+        }
+
+        .grid-coords {
+            position: absolute;
+            font-size: 10px;
+            color: #adb5bd;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="fragments/navbar :: navbar"></div>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Main Grid Visualization -->
+            <div class="col-lg-9">
+                <div class="grid-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="fw-bold text-success">
+                            <i class="bi bi-geo-alt-fill"></i> Device Positioning Grid
+                        </h2>
+                        <div class="d-flex align-items-center">
+                            <span class="connection-status disconnected" id="connectionStatus"></span>
+                            <span id="connectionText">Connecting...</span>
+                        </div>
+                    </div>
+
+                    <div class="positioning-grid" id="positioningGrid">
+                        <!-- Grid coordinates -->
+                        <span class="grid-coords" style="top: 5px; left: 5px;">0,0</span>
+                        <span class="grid-coords" style="top: 5px; right: 5px;">15,0</span>
+                        <span class="grid-coords" style="bottom: 5px; left: 5px;">0,10</span>
+                        <span class="grid-coords" style="bottom: 5px; right: 5px;">15,10</span>
+
+                        <!-- Axis labels -->
+                        <span class="axis-label x-axis">X →</span>
+                        <span class="axis-label y-axis">Y →</span>
+
+                        <!-- Antennas (fixed positions) -->
+                        <div class="antenna-marker" style="left: 0%; top: 100%;" title="scan1 (0,0)">A1</div>
+                        <div class="antenna-marker" style="left: 66.67%; top: 100%;" title="scan2 (10,0)">A2</div>
+                        <div class="antenna-marker" style="left: 0%; top: 0%;" title="scan3 (0,10)">A3</div>
+                        <div class="antenna-marker" style="left: 66.67%; top: 0%;" title="scan4 (10,10)">A4</div>
+                        <div class="antenna-marker" style="left: 33.33%; top: 50%;" title="scan5 (5,5)">A5</div>
+                        <div class="antenna-marker" style="left: 100%; top: 50%;" title="scan6 (15,5)">A6</div>
+
+                        <!-- Device markers will be added dynamically here -->
+                    </div>
+
+                    <div class="alert alert-info">
+                        <strong>Grid Scale:</strong> X: 0-15m | Y: 0-10m |
+                        <strong>Blue squares:</strong> Antennas |
+                        <strong>Green circles:</strong> Devices
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar with device list and stats -->
+            <div class="col-lg-3">
+                <!-- Statistics -->
+                <div class="stats-card mb-4">
+                    <h5 class="mb-3">
+                        <i class="bi bi-graph-up"></i> Live Statistics
+                    </h5>
+                    <div class="mb-2">
+                        <small>Active Devices</small>
+                        <h3 class="mb-0" id="deviceCount">0</h3>
+                    </div>
+                    <div class="mb-2">
+                        <small>Total Updates</small>
+                        <h4 class="mb-0" id="updateCount">0</h4>
+                    </div>
+                    <div>
+                        <small>Last Update</small>
+                        <div id="lastUpdate" style="font-size: 12px;">N/A</div>
+                    </div>
+                </div>
+
+                <!-- Device List -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-list-ul"></i> Detected Devices
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="device-list" id="deviceList">
+                            <div class="p-4 text-center text-muted">
+                                <i class="bi bi-hourglass-split"></i>
+                                <p class="mb-0">Waiting for device detections...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let stompClient = null;
+        let devices = new Map();
+        let updateCounter = 0;
+
+        const gridWidth = 15;  // Maximum X coordinate
+        const gridHeight = 10; // Maximum Y coordinate
+
+        // Connect to WebSocket
+        function connect() {
+            console.log('Attempting to connect to WebSocket...');
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+
+            // Enable debug logging
+            stompClient.debug = function(str) {
+                console.log('STOMP: ' + str);
+            };
+
+            stompClient.connect({}, function(frame) {
+                console.log('Connected: ' + frame);
+                updateConnectionStatus(true);
+
+                // Subscribe to device position updates
+                stompClient.subscribe('/topic/device-positions', function(message) {
+                    const update = JSON.parse(message.body);
+                    handlePositionUpdate(update);
+                });
+            }, function(error) {
+                console.error('WebSocket error:', error);
+                updateConnectionStatus(false);
+                // Retry connection after 5 seconds
+                setTimeout(connect, 5000);
+            });
+        }
+
+        function updateConnectionStatus(connected) {
+            const statusElement = document.getElementById('connectionStatus');
+            const textElement = document.getElementById('connectionText');
+
+            if (connected) {
+                statusElement.classList.remove('disconnected');
+                statusElement.classList.add('connected');
+                textElement.textContent = 'Connected';
+                textElement.classList.remove('text-danger');
+                textElement.classList.add('text-success');
+            } else {
+                statusElement.classList.remove('connected');
+                statusElement.classList.add('disconnected');
+                textElement.textContent = 'Disconnected';
+                textElement.classList.remove('text-success');
+                textElement.classList.add('text-danger');
+            }
+        }
+
+        function handlePositionUpdate(update) {
+            console.log('Position update:', update);
+            updateCounter++;
+
+            // Update or create device marker
+            updateDeviceMarker(update);
+
+            // Update device list
+            updateDeviceList(update);
+
+            // Update statistics
+            updateStatistics();
+        }
+
+        function updateDeviceMarker(update) {
+            const grid = document.getElementById('positioningGrid');
+            const deviceId = update.deviceAddress;
+
+            // Calculate percentage position on grid
+            const leftPercent = (update.x / gridWidth) * 100;
+            const topPercent = 100 - ((update.y / gridHeight) * 100); // Invert Y axis
+
+            // Find or create marker
+            let marker = document.getElementById('marker-' + deviceId);
+            let label = document.getElementById('label-' + deviceId);
+
+            if (!marker) {
+                // Create new marker
+                marker = document.createElement('div');
+                marker.id = 'marker-' + deviceId;
+                marker.className = 'device-marker';
+                marker.title = deviceId;
+
+                // Create label
+                label = document.createElement('div');
+                label.id = 'label-' + deviceId;
+                label.className = 'device-label';
+                label.textContent = deviceId.substring(12); // Show last 6 chars
+
+                marker.appendChild(label);
+                grid.appendChild(marker);
+            }
+
+            // Update position with animation
+            marker.style.left = leftPercent + '%';
+            marker.style.top = topPercent + '%';
+
+            // Store device info
+            devices.set(deviceId, {
+                ...update,
+                lastSeen: new Date()
+            });
+
+            // Highlight effect
+            marker.style.transform = 'translate(-50%, -50%) scale(1.5)';
+            setTimeout(() => {
+                marker.style.transform = 'translate(-50%, -50%) scale(1)';
+            }, 300);
+        }
+
+        function updateDeviceList(update) {
+            const listContainer = document.getElementById('deviceList');
+            const deviceId = update.deviceAddress;
+
+            let deviceItem = document.getElementById('list-' + deviceId);
+
+            if (!deviceItem) {
+                // Clear "waiting" message if this is first device
+                if (devices.size === 0) {
+                    listContainer.innerHTML = '';
+                }
+
+                // Create new list item
+                deviceItem = document.createElement('div');
+                deviceItem.id = 'list-' + deviceId;
+                deviceItem.className = 'device-item p-3 border-bottom';
+                listContainer.appendChild(deviceItem);
+            }
+
+            // Update item content
+            deviceItem.innerHTML = `
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <strong class="text-success">${deviceId.substring(0, 17)}</strong>
+                        <div class="small text-muted mt-1">
+                            <i class="bi bi-geo-alt"></i>
+                            X: ${update.x.toFixed(2)}m, Y: ${update.y.toFixed(2)}m
+                        </div>
+                        <div class="small text-muted">
+                            <i class="bi bi-broadcast"></i> ${update.antennaCount} antennas
+                        </div>
+                    </div>
+                    <span class="badge bg-success">Active</span>
+                </div>
+            `;
+        }
+
+        function updateStatistics() {
+            document.getElementById('deviceCount').textContent = devices.size;
+            document.getElementById('updateCount').textContent = updateCounter;
+
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent =
+                now.toLocaleTimeString();
+        }
+
+        // Connect on page load
+        window.onload = function() {
+            connect();
+        };
+
+        // Cleanup on page unload
+        window.onbeforeunload = function() {
+            if (stompClient !== null) {
+                stompClient.disconnect();
+            }
+        };
+    </script>
+</body>
+</html>
